@@ -21,6 +21,8 @@ it fastens the main board to the I/O board, and possibly also the red casing...
 
 * CPU covered by QR code sticker labelled "A190422", and in smaller text "65873A190401104".
 * Underneath reads "MIMXRT1051DVL6B". Arm Cortex M7: http://www.farnell.com/datasheets/2603846.pdf
+* Grab reference manual from NXP website, account probably needed.
+* Grab 1.07 firmware image from Boss website.
 
 * Two ISSI DRAM circuits: http://www.issi.com/WW/pdf/42-45S83200J-16160J.pdf
 
@@ -40,3 +42,20 @@ through some parallel flat cable.
 
 * Looks like super simply circuitry for the two footswitches. A set of three cables (1 red, 2 white)
 connects the panel sheet with the upper I/O board.
+
+### Firmware notes
+
+Reference manual states that the image consists of:
+1. Image vector table (IVT),
+2. Boot data,
+3. Device configuration data,
+4. User code + data.
+
+IVT header (FlexSPI) was located 4096 bytes in:
+* u8:  magic tag 0xd1
+* u16: IVT big-ending length, 0x0020
+* u8:  magic version, 0x41
+* u32: address of 1st instruction, little-endian 0x11250060.
+
+Memory map states that FlexSPI is mapped to start address 0x60000000, so start address is
+0x2511=9489 bytes into the FW image.
