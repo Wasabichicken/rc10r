@@ -2,7 +2,7 @@
 
 A file with the file extension `.rc0`, creatable using Boss's RC-10R
 Rhythm Converter software. It appears to be a file header, a parts
-list, followed by what looks like MIDI, and padded with zeroes to 1960
+list, a sequence of modified MIDI, and padded with zeroes to 1960
 bytes.
 
 ## File header
@@ -176,6 +176,49 @@ and could plausibly be offsets/lengths of some kind.
 TODO: Poke around with these bytes, see if the Rhythm Converter
 complains.
 
-## MIDI data
+## MIDI
 
-TODO
+Next follows a sequence of modified MIDI events. They're similar to
+MTrk events, but:
+
+1. The delta time is at least two bytes (little-endian). TODO:
+   experiment more with longer delta times, figure out if it's
+   actually more than two bytes like MIDIs variable length quantities.
+2. The MIDI status is implicitly `0x09`, "Note On", similar to MIDIs
+   "running status".
+
+Note number and velocity appears unchanged.
+
+For example:
+
+```shell
+0000 3150
+```
+
+Here, the delta time is `0000`, meaning no time has elapsed: it's the
+first beat in the sequence. The note is `0x31`, crash cymbal 1. The
+velocity is `0x50`.
+
+Another example:
+
+```shell
+6000 3150
+```
+
+The delta time `6000` signifies decimal 96 of some time unit. TODO:
+figure this out. This is supposed to be a quarter note beat in 4/4.
+
+The note is again `0x31`, crash cymbal 1, and the velocity is again
+`0x50`.
+
+## Padding
+
+After the MIDI sequence, the file is padded with zeroes to 1960
+bytes. Not sure why. Perhaps it has something to do with the RC-10R's
+hardware, maybe it corresponds to some block size that saves write
+cycles on the flash memory or something.
+
+TODO: investigate why padding is used.
+
+TODO: find out if the Rhythm Converter software accepts non-padded
+files.
